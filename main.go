@@ -8,11 +8,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/smancke/goletter/api"
-	"github.com/smancke/goletter/logging"
+	"github.com/smancke/mailigo/api"
+	"github.com/smancke/mailigo/logging"
 )
 
-const applicationName = "goletter"
+const applicationName = "mailigo"
 
 func main() {
 	config := ReadConfig()

@@ -10,7 +10,7 @@ import (
 
 func TestConfig_ReadConfigDefaults(t *testing.T) {
 	originalArgs := os.Args
-	os.Args = []string{"goletter"}
+	os.Args = []string{"mailigo"}
 	defer func() { os.Args = originalArgs }()
 
 	defaultConfig := DefaultConfig()
@@ -21,14 +21,14 @@ func TestConfig_ReadConfigDefaults(t *testing.T) {
 func TestConfig_ReadConfig(t *testing.T) {
 	input := []string{
 		"--host=host",
-		"--port=port",
+		"--port=42",
 		"--log-level=loglevel",
 		"--text-logging=true",
 		"--jwt-secret=jwtsecret",
 		"--db-driver=dbdriver",
 		"--db-datasource=dbdatasource",
 		"--mail-host=mailhost",
-		"--mail-port=mailport",
+		"--mail-port=43",
 		"--mail-username=mailusername",
 		"--mail-password=mailpassword",
 		"--mail-ssl=true",
@@ -37,18 +37,20 @@ func TestConfig_ReadConfig(t *testing.T) {
 
 	expected := &Config{
 		Host:         "host",
-		Port:         "port",
+		Port:         42,
 		LogLevel:     "loglevel",
 		TextLogging:  true,
 		JwtSecret:    "jwtsecret",
 		DBDriver:     "dbdriver",
 		DBDataSource: "dbdatasource",
-		MailHost:     "mailhost",
-		MailPort:     "mailport",
-		MailUsername: "mailusername",
-		MailPassword: "mailpassword",
-		MailSSL:      true,
-		GracePeriod:  4 * time.Second,
+		MailConfig: mail.MailConfig{
+			Host:     "mailhost",
+			Port:     43,
+			Username: "mailusername",
+			Password: "mailpassword",
+			SSL:      true,
+		},
+		GracePeriod: 4 * time.Second,
 	}
 
 	cfg, err := readConfig(flag.NewFlagSet("", flag.ContinueOnError), input)
@@ -57,50 +59,52 @@ func TestConfig_ReadConfig(t *testing.T) {
 }
 
 func TestConfig_ReadConfigFromEnv(t *testing.T) {
-	NoError(t, os.Setenv("GOLETTER_HOST", "host"))
-	NoError(t, os.Setenv("GOLETTER_PORT", "port"))
-	NoError(t, os.Setenv("GOLETTER_LOG_LEVEL", "loglevel"))
-	NoError(t, os.Setenv("GOLETTER_TEXT_LOGGING", "true"))
-	NoError(t, os.Setenv("GOLETTER_JWT_SECRET", "jwtsecret"))
-	NoError(t, os.Setenv("GOLETTER_DB_DRIVER", "dbdriver"))
-	NoError(t, os.Setenv("GOLETTER_DB_DATASOURCE", "dbdatasource"))
-	NoError(t, os.Setenv("GOLETTER_MAIL_HOST", "mailhost"))
-	NoError(t, os.Setenv("GOLETTER_MAIL_PORT", "mailport"))
-	NoError(t, os.Setenv("GOLETTER_MAIL_USERNAME", "mailusername"))
-	NoError(t, os.Setenv("GOLETTER_MAIL_PASSWORD", "mailpassword"))
-	NoError(t, os.Setenv("GOLETTER_MAIL_SSL", "true"))
-	NoError(t, os.Setenv("GOLETTER_GRACE_PERIOD", "4s"))
+	NoError(t, os.Setenv("MAILIGO_HOST", "host"))
+	NoError(t, os.Setenv("MAILIGO_PORT", "42"))
+	NoError(t, os.Setenv("MAILIGO_LOG_LEVEL", "loglevel"))
+	NoError(t, os.Setenv("MAILIGO_TEXT_LOGGING", "true"))
+	NoError(t, os.Setenv("MAILIGO_JWT_SECRET", "jwtsecret"))
+	NoError(t, os.Setenv("MAILIGO_DB_DRIVER", "dbdriver"))
+	NoError(t, os.Setenv("MAILIGO_DB_DATASOURCE", "dbdatasource"))
+	NoError(t, os.Setenv("MAILIGO_MAIL_HOST", "mailhost"))
+	NoError(t, os.Setenv("MAILIGO_MAIL_PORT", "43"))
+	NoError(t, os.Setenv("MAILIGO_MAIL_USERNAME", "mailusername"))
+	NoError(t, os.Setenv("MAILIGO_MAIL_PASSWORD", "mailpassword"))
+	NoError(t, os.Setenv("MAILIGO_MAIL_SSL", "true"))
+	NoError(t, os.Setenv("MAILIGO_GRACE_PERIOD", "4s"))
 
 	defer func() {
-		os.Unsetenv("GOLETTER_HOST")
-		os.Unsetenv("GOLETTER_PORT")
-		os.Unsetenv("GOLETTER_LOG_LEVEL")
-		os.Unsetenv("GOLETTER_TEXT_LOGGING")
-		os.Unsetenv("GOLETTER_JWT_SECRET")
-		os.Unsetenv("GOLETTER_DB_DRIVER")
-		os.Unsetenv("GOLETTER_DB_DATASOURCE")
-		os.Unsetenv("GOLETTER_MAIL_HOST")
-		os.Unsetenv("GOLETTER_MAIL_PORT")
-		os.Unsetenv("GOLETTER_MAIL_USERNAME")
-		os.Unsetenv("GOLETTER_MAIL_PASSWORD")
-		os.Unsetenv("GOLETTER_MAIL_SSL")
-		os.Unsetenv("GOLETTER_GRACE_PERIOD")
+		os.Unsetenv("MAILIGO_HOST")
+		os.Unsetenv("MAILIGO_PORT")
+		os.Unsetenv("MAILIGO_LOG_LEVEL")
+		os.Unsetenv("MAILIGO_TEXT_LOGGING")
+		os.Unsetenv("MAILIGO_JWT_SECRET")
+		os.Unsetenv("MAILIGO_DB_DRIVER")
+		os.Unsetenv("MAILIGO_DB_DATASOURCE")
+		os.Unsetenv("MAILIGO_MAIL_HOST")
+		os.Unsetenv("MAILIGO_MAIL_PORT")
+		os.Unsetenv("MAILIGO_MAIL_USERNAME")
+		os.Unsetenv("MAILIGO_MAIL_PASSWORD")
+		os.Unsetenv("MAILIGO_MAIL_SSL")
+		os.Unsetenv("MAILIGO_GRACE_PERIOD")
 	}()
 
 	expected := &Config{
 		Host:         "host",
-		Port:         "port",
+		Port:         42,
 		LogLevel:     "loglevel",
 		TextLogging:  true,
 		JwtSecret:    "jwtsecret",
 		DBDriver:     "dbdriver",
 		DBDataSource: "dbdatasource",
-		MailHost:     "mailhost",
-		MailPort:     "mailport",
-		MailUsername: "mailusername",
-		MailPassword: "mailpassword",
-		MailSSL:      true,
-		GracePeriod:  4 * time.Second,
+		MailConfig: mail.MailConfig{
+			Host:     "mailhost",
+			Port:     43,
+			Username: "mailusername",
+			Password: "mailpassword",
+			SSL:      true,
+		},
+		GracePeriod: 4 * time.Second,
 	}
 
 	cfg, err := readConfig(flag.NewFlagSet("", flag.ContinueOnError), []string{})

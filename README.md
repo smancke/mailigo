@@ -1,5 +1,5 @@
 
-# Goletter - Newsletter engine using golang and MJML
+# Mailigo - Newsletter engine using golang and MJML
 
 
 

@@ -13,7 +13,7 @@ func Test_BasicEndToEnd(t *testing.T) {
 	originalArgs := os.Args
 
 	secret := "theSecret"
-	os.Args = []string{"goletter", "-jwt-secret", secret, "-host=localhost", "-port=3000"}
+	os.Args = []string{"mailigo", "-jwt-secret", secret, "-host=localhost", "-port=3000"}
 	defer func() { os.Args = originalArgs }()
 
 	go main()

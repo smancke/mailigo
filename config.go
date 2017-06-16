@@ -2,57 +2,54 @@ package main
 
 import (
 	"flag"
+	"github.com/smancke/mailigo/mail"
 	"os"
 	"strings"
 	"time"
 )
 
-// DefaultConfig for goletter
+// DefaultConfig for mailigo
 func DefaultConfig() *Config {
 	return &Config{
 		Host:         "localhost",
-		Port:         "8080",
+		Port:         8080,
 		LogLevel:     "info",
 		JwtSecret:    "secret",
 		DBDriver:     "sqlite3",
-		DBDataSource: "/var/lib/goletter",
+		DBDataSource: "/var/lib/mailigo",
 		GracePeriod:  5 * time.Second,
 	}
 }
 
-const envPrefix = "GOLETTER_"
+const envPrefix = "MAILIGO_"
 
 // Config for the loginsrv handler
 type Config struct {
 	Host         string
-	Port         string
+	Port         int
 	LogLevel     string
 	TextLogging  bool
 	JwtSecret    string
 	DBDriver     string
 	DBDataSource string
-	MailHost     string
-	MailPort     string
-	MailUsername string
-	MailPassword string
-	MailSSL      bool
+	MailConfig   mail.MailConfig
 	GracePeriod  time.Duration
 }
 
 // ConfigureFlagSet adds all flags to the supplied flag set
 func (c *Config) ConfigureFlagSet(f *flag.FlagSet) {
 	f.StringVar(&c.Host, "host", c.Host, "The host to listen on")
-	f.StringVar(&c.Port, "port", c.Port, "The port to listen on")
+	f.IntVar(&c.Port, "port", c.Port, "The port to listen on")
 	f.StringVar(&c.LogLevel, "log-level", c.LogLevel, "The log level")
 	f.BoolVar(&c.TextLogging, "text-logging", c.TextLogging, "Log in text format instead of json")
 	f.StringVar(&c.JwtSecret, "jwt-secret", c.JwtSecret, "The secret to sign the jwt token")
 	f.StringVar(&c.DBDriver, "db-driver", c.DBDriver, "")
 	f.StringVar(&c.DBDataSource, "db-datasource", c.DBDataSource, "")
-	f.StringVar(&c.MailHost, "mail-host", c.MailHost, "")
-	f.StringVar(&c.MailPort, "mail-port", c.MailPort, "")
-	f.StringVar(&c.MailUsername, "mail-username", c.MailUsername, "")
-	f.StringVar(&c.MailPassword, "mail-password", c.MailPassword, "")
-	f.BoolVar(&c.MailSSL, "mail-ssl", c.MailSSL, "")
+	f.StringVar(&c.MailConfig.Host, "mail-host", c.MailConfig.Host, "")
+	f.IntVar(&c.MailConfig.Port, "mail-port", c.MailConfig.Port, "")
+	f.StringVar(&c.MailConfig.Username, "mail-username", c.MailConfig.Username, "")
+	f.StringVar(&c.MailConfig.Password, "mail-password", c.MailConfig.Password, "")
+	f.BoolVar(&c.MailConfig.SSL, "mail-ssl", c.MailConfig.SSL, "")
 	f.DurationVar(&c.GracePeriod, "grace-period", c.GracePeriod, "Graceful shutdown grace period")
 }
 
