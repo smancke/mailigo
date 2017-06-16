@@ -21,10 +21,7 @@ func Test_BasicEndToEnd(t *testing.T) {
 	time.Sleep(time.Second)
 
 	// success
-	req, err := http.NewRequest("POST", "http://localhost:3000/api", nil)
-	NoError(t, err)
-	req.Header.Set("Content-Type", "application/json")
-	r, err := http.DefaultClient.Do(req)
+	r, err := http.Get("http://localhost:3000/health")
 	NoError(t, err)
 
 	Equal(t, 200, r.StatusCode)

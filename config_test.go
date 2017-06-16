@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/smancke/mailigo/mail"
 	. "github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -27,11 +28,11 @@ func TestConfig_ReadConfig(t *testing.T) {
 		"--jwt-secret=jwtsecret",
 		"--db-driver=dbdriver",
 		"--db-datasource=dbdatasource",
-		"--mail-host=mailhost",
-		"--mail-port=43",
-		"--mail-username=mailusername",
-		"--mail-password=mailpassword",
-		"--mail-ssl=true",
+		"--smtp-host=smtphost",
+		"--smtp-port=43",
+		"--smtp-username=smtpusername",
+		"--smtp-password=smtppassword",
+		"--smtp-ssl=true",
 		"--grace-period=4s",
 	}
 
@@ -43,11 +44,11 @@ func TestConfig_ReadConfig(t *testing.T) {
 		JwtSecret:    "jwtsecret",
 		DBDriver:     "dbdriver",
 		DBDataSource: "dbdatasource",
-		MailConfig: mail.MailConfig{
-			Host:     "mailhost",
+		SMTPConfig: mail.SMTPConfig{
+			Host:     "smtphost",
 			Port:     43,
-			Username: "mailusername",
-			Password: "mailpassword",
+			Username: "smtpusername",
+			Password: "smtppassword",
 			SSL:      true,
 		},
 		GracePeriod: 4 * time.Second,
@@ -66,11 +67,11 @@ func TestConfig_ReadConfigFromEnv(t *testing.T) {
 	NoError(t, os.Setenv("MAILIGO_JWT_SECRET", "jwtsecret"))
 	NoError(t, os.Setenv("MAILIGO_DB_DRIVER", "dbdriver"))
 	NoError(t, os.Setenv("MAILIGO_DB_DATASOURCE", "dbdatasource"))
-	NoError(t, os.Setenv("MAILIGO_MAIL_HOST", "mailhost"))
-	NoError(t, os.Setenv("MAILIGO_MAIL_PORT", "43"))
-	NoError(t, os.Setenv("MAILIGO_MAIL_USERNAME", "mailusername"))
-	NoError(t, os.Setenv("MAILIGO_MAIL_PASSWORD", "mailpassword"))
-	NoError(t, os.Setenv("MAILIGO_MAIL_SSL", "true"))
+	NoError(t, os.Setenv("MAILIGO_SMTP_HOST", "smtphost"))
+	NoError(t, os.Setenv("MAILIGO_SMTP_PORT", "43"))
+	NoError(t, os.Setenv("MAILIGO_SMTP_USERNAME", "smtpusername"))
+	NoError(t, os.Setenv("MAILIGO_SMTP_PASSWORD", "smtppassword"))
+	NoError(t, os.Setenv("MAILIGO_SMTP_SSL", "true"))
 	NoError(t, os.Setenv("MAILIGO_GRACE_PERIOD", "4s"))
 
 	defer func() {
@@ -81,11 +82,11 @@ func TestConfig_ReadConfigFromEnv(t *testing.T) {
 		os.Unsetenv("MAILIGO_JWT_SECRET")
 		os.Unsetenv("MAILIGO_DB_DRIVER")
 		os.Unsetenv("MAILIGO_DB_DATASOURCE")
-		os.Unsetenv("MAILIGO_MAIL_HOST")
-		os.Unsetenv("MAILIGO_MAIL_PORT")
-		os.Unsetenv("MAILIGO_MAIL_USERNAME")
-		os.Unsetenv("MAILIGO_MAIL_PASSWORD")
-		os.Unsetenv("MAILIGO_MAIL_SSL")
+		os.Unsetenv("MAILIGO_SMTP_HOST")
+		os.Unsetenv("MAILIGO_SMTP_PORT")
+		os.Unsetenv("MAILIGO_SMTP_USERNAME")
+		os.Unsetenv("MAILIGO_SMTP_PASSWORD")
+		os.Unsetenv("MAILIGO_SMTP_SSL")
 		os.Unsetenv("MAILIGO_GRACE_PERIOD")
 	}()
 
@@ -97,11 +98,11 @@ func TestConfig_ReadConfigFromEnv(t *testing.T) {
 		JwtSecret:    "jwtsecret",
 		DBDriver:     "dbdriver",
 		DBDataSource: "dbdatasource",
-		MailConfig: mail.MailConfig{
-			Host:     "mailhost",
+		SMTPConfig: mail.SMTPConfig{
+			Host:     "smtphost",
 			Port:     43,
-			Username: "mailusername",
-			Password: "mailpassword",
+			Username: "smtpusername",
+			Password: "smtppassword",
 			SSL:      true,
 		},
 		GracePeriod: 4 * time.Second,

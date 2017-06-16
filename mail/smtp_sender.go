@@ -4,7 +4,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-type MailConfig struct {
+type SMTPConfig struct {
 	Host     string
 	Port     int
 	Username string
@@ -12,30 +12,15 @@ type MailConfig struct {
 	SSL      bool
 }
 
-type MessageId struct {
+type SMTPSender struct {
+	config SMTPConfig
 }
 
-type SendResult struct {
-	MailingId string
-	To        string
-	Err       error
-	Delivered bool
+func NewSMTPSender(config SMTPConfig) *SMTPSender {
+	return &SMTPSender{config}
 }
 
-type Message struct {
-	MailingID string
-	From      string
-	To        string
-	Subject   string
-	HtmlBody  string
-	TextBody  string
-}
-
-type Mailer struct {
-	config MailConfig
-}
-
-func (m *Mailer) Send(messages <-chan Message, results chan<- SendResult) error {
+func (m *SMTPSender) Send(messages <-chan Message, results chan<- MessageProcessingResult) error {
 	d := gomail.NewDialer(m.config.Host, m.config.Port, m.config.Username, m.config.Password)
 	s, err := d.Dial()
 	if err != nil {
@@ -43,15 +28,18 @@ func (m *Mailer) Send(messages <-chan Message, results chan<- SendResult) error 
 	}
 	defer s.Close()
 
-	for msg := range messages {
-		err := gomail.Send(s, gomailMessage(msg))
-		results <- SendResult{
-			msg.MailingID,
-			msg.To,
-			err,
-			err != nil,
+	go func() {
+		for msg := range messages {
+			err := gomail.Send(s, gomailMessage(msg))
+			results <- MessageProcessingResult{
+				msg.MailingID,
+				msg.To,
+				err,
+			}
 		}
-	}
+
+		close(results)
+	}()
 
 	return nil
 }

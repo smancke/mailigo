@@ -32,7 +32,7 @@ type Config struct {
 	JwtSecret    string
 	DBDriver     string
 	DBDataSource string
-	MailConfig   mail.MailConfig
+	SMTPConfig   mail.SMTPConfig
 	GracePeriod  time.Duration
 }
 
@@ -45,11 +45,11 @@ func (c *Config) ConfigureFlagSet(f *flag.FlagSet) {
 	f.StringVar(&c.JwtSecret, "jwt-secret", c.JwtSecret, "The secret to sign the jwt token")
 	f.StringVar(&c.DBDriver, "db-driver", c.DBDriver, "")
 	f.StringVar(&c.DBDataSource, "db-datasource", c.DBDataSource, "")
-	f.StringVar(&c.MailConfig.Host, "mail-host", c.MailConfig.Host, "")
-	f.IntVar(&c.MailConfig.Port, "mail-port", c.MailConfig.Port, "")
-	f.StringVar(&c.MailConfig.Username, "mail-username", c.MailConfig.Username, "")
-	f.StringVar(&c.MailConfig.Password, "mail-password", c.MailConfig.Password, "")
-	f.BoolVar(&c.MailConfig.SSL, "mail-ssl", c.MailConfig.SSL, "")
+	f.StringVar(&c.SMTPConfig.Host, "smtp-host", c.SMTPConfig.Host, "")
+	f.IntVar(&c.SMTPConfig.Port, "smtp-port", c.SMTPConfig.Port, "")
+	f.StringVar(&c.SMTPConfig.Username, "smtp-username", c.SMTPConfig.Username, "")
+	f.StringVar(&c.SMTPConfig.Password, "smtp-password", c.SMTPConfig.Password, "")
+	f.BoolVar(&c.SMTPConfig.SSL, "smtp-ssl", c.SMTPConfig.SSL, "")
 	f.DurationVar(&c.GracePeriod, "grace-period", c.GracePeriod, "Graceful shutdown grace period")
 }
 

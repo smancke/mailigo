@@ -10,6 +10,7 @@ import (
 
 	"github.com/smancke/mailigo/api"
 	"github.com/smancke/mailigo/logging"
+	"github.com/smancke/mailigo/mail"
 )
 
 const applicationName = "mailigo"
@@ -20,21 +21,17 @@ func main() {
 		exit(nil, err)
 	}
 
-	logging.LifecycleStart(applicationName, config)
+	configForLogging := *config
+	configForLogging.SMTPConfig.Password = "****"
+	logging.LifecycleStart(applicationName, configForLogging)
 
-	h := api.NewHandler()
-
-	handlerChain := logging.NewLogMiddleware(h)
+	handlerChain := logging.NewLogMiddleware(createHandler(config))
 
 	stop := make(chan os.Signal)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
-	port := config.Port
-	if port != "" {
-		port = fmt.Sprintf(":%s", port)
-	}
-
-	httpSrv := &http.Server{Addr: port, Handler: handlerChain}
+	addr := fmt.Sprintf("%v:%v", config.Host, config.Port)
+	httpSrv := &http.Server{Addr: addr, Handler: handlerChain}
 
 	go func() {
 		if err := httpSrv.ListenAndServe(); err != nil {
@@ -51,6 +48,13 @@ func main() {
 
 	httpSrv.Shutdown(ctx)
 	ctxCancel()
+}
+
+func createHandler(config *Config) http.Handler {
+	sender := mail.NewSMTPSender(config.SMTPConfig)
+	manager := mail.NewMailingManager("templates", sender)
+	h := api.NewHandler(manager)
+	return h
 }
 
 var exit = func(signal os.Signal, err error) {
