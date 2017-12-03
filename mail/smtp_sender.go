@@ -1,7 +1,9 @@
 package mail
 
 import (
+	"fmt"
 	"gopkg.in/gomail.v2"
+	"time"
 )
 
 type SMTPConfig struct {
@@ -21,24 +23,36 @@ func NewSMTPSender(config SMTPConfig) *SMTPSender {
 }
 
 func (m *SMTPSender) Send(messages <-chan Message, results chan<- MessageProcessingResult) error {
-	d := gomail.NewDialer(m.config.Host, m.config.Port, m.config.Username, m.config.Password)
-	s, err := d.Dial()
-	if err != nil {
-		return err
-	}
-	defer s.Close()
 
 	go func() {
+		d := gomail.NewDialer(m.config.Host, m.config.Port, m.config.Username, m.config.Password)
+		s, err := d.Dial()
+		if err != nil {
+			fmt.Printf("error on connect %v", err)
+		}
+
 		for msg := range messages {
+			//fmt.Printf("msg: %+v\n", msg)
 			err := gomail.Send(s, gomailMessage(msg))
 			results <- MessageProcessingResult{
 				msg.MailingID,
 				msg.To,
 				err,
 			}
-		}
 
+			if err != nil {
+				s.Close()
+				time.Sleep(time.Second)
+				d = gomail.NewDialer(m.config.Host, m.config.Port, m.config.Username, m.config.Password)
+				s, err = d.Dial()
+				if err != nil {
+					fmt.Printf("error on reconnect %v\n", err)
+				}
+			}
+			time.Sleep(150 * time.Millisecond)
+		}
 		close(results)
+		s.Close()
 	}()
 
 	return nil
