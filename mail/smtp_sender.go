@@ -31,6 +31,7 @@ func (m *SMTPSender) Send(messages <-chan Message, results chan<- MessageProcess
 			fmt.Printf("error on connect %v", err)
 		}
 
+		counter := 0
 		for msg := range messages {
 			//fmt.Printf("msg: %+v\n", msg)
 			err := gomail.Send(s, gomailMessage(msg))
@@ -39,8 +40,9 @@ func (m *SMTPSender) Send(messages <-chan Message, results chan<- MessageProcess
 				msg.To,
 				err,
 			}
-
-			if err != nil {
+			counter++
+			if err != nil || counter%20 == 0 {
+				fmt.Printf("reconnect ...\n")
 				s.Close()
 				time.Sleep(time.Second)
 				d = gomail.NewDialer(m.config.Host, m.config.Port, m.config.Username, m.config.Password)
